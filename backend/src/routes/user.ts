@@ -8,6 +8,9 @@ export const userRouter = new Hono<{
     Bindings : {
         DATABASE_URL : string ,
         JWT_SECRET : string 
+    },
+    Variables : {
+        userId : string
     }
 }>() ;
 
@@ -77,4 +80,53 @@ userRouter.post("/signin", async (c) => {
 
     const jwt = await sign({id : user.id} , c.env.JWT_SECRET) ;
     return c.json({jwt})
+})
+
+// Get current user info (requires authentication)
+userRouter.get("/me", async (c) => {
+    const authHeader = c.req.header("authorization") || ""
+    
+    try {
+        const user = await verify(authHeader, c.env.JWT_SECRET)
+        
+        if (!user || !user.id) {
+            c.status(403)
+            return c.json({
+                message: "You are not logged in",
+            })
+        }
+
+        const prisma = new PrismaClient({
+            datasourceUrl: c.env.DATABASE_URL,
+        }).$extends(withAccelerate())
+
+        const userData = await prisma.user.findUnique({
+            where: {
+                id: user.id as string,
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+            },
+        })
+
+        if (!userData) {
+            c.status(404)
+            return c.json({
+                message: "User not found",
+            })
+        }
+
+        return c.json({
+            id: userData.id,
+            name: userData.name,
+            email: userData.email,
+        })
+    } catch (e) {
+        c.status(403)
+        return c.json({
+            message: "You are not logged in",
+        })
+    }
 })

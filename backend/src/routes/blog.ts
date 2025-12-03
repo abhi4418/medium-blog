@@ -25,16 +25,16 @@ blogRouter.use("/*" , async (c , next)=>{
         await next() ;
     }
     else {
-        c.status(403) ;
+        c.status(403)
         return c.json({
-            message : "You are not logged in"
+            message: "You are not logged in",
         })
     }
     }
     catch(e){
-        c.status(403) ;
+        c.status(403)
         return c.json({
-            message : "You are not logged in" 
+            message: "You are not logged in",
         })
     }
 })
@@ -45,26 +45,26 @@ blogRouter.post("/", async (c) => {
         datasourceUrl: c.env.DATABASE_URL,
     }).$extends(withAccelerate())
 
-    const body = await c.req.json() ;
-    const {success} = createBlogInput.safeParse(body) ;
-    if(!success){
-        c.status(411) ;
+    const body = await c.req.json()
+    const { success } = createBlogInput.safeParse(body)
+    if (!success) {
+        c.status(411)
         return c.json({
-            message : "Inputs not correct"
+            message: "Inputs not correct",
         })
     }
-    const authorId = c.get("userId") ;
+    const authorId = c.get("userId")
 
     const blog = await prisma.post.create({
-        data : {
-            title : body.title ,
-            content : body.content ,
-            authorId : authorId
-        }
+        data: {
+            title: body.title,
+            content: body.content,
+            authorId: authorId,
+        },
     })
 
     return c.json({
-        id : blog.id
+        id: blog.id,
     })
 })
 
@@ -73,26 +73,37 @@ blogRouter.put("/", async (c) => {
         datasourceUrl: c.env.DATABASE_URL,
     }).$extends(withAccelerate())
 
-    const body = await c.req.json() ;
-    const {success} = updateBlogInput.safeParse(body) ;
-    if(!success){
-        c.status(411) ;
+    const body = await c.req.json()
+    const { success } = updateBlogInput.safeParse(body)
+    if (!success) {
+        c.status(411)
         return c.json({
-            message : "Inputs not correct"
+            message: "Inputs not correct",
         })
     }
-    const blog = await prisma.post.update({
-        data : {
-            title : body.title ,
-            content : body.content
-        } , 
-        where : {
-            id : body.id
-        }
+
+    const authorId = c.get("userId")
+
+    const blog = await prisma.post.updateMany({
+        data: {
+            title: body.title,
+            content: body.content,
+        },
+        where: {
+            id: body.id,
+            authorId: authorId,
+        },
     })
 
+    if (blog.count === 0) {
+        c.status(403)
+        return c.json({
+            message: "Not authorized to update this post",
+        })
+    }
+
     return c.json({
-        id : blog.id
+        id: body.id,
     })
 })
 
@@ -103,54 +114,122 @@ blogRouter.get("/bulk", async (c) => {
     }).$extends(withAccelerate())
 
     const blogs = await prisma.post.findMany({
-        select :{
-            content : true ,
-            title : true ,
-            id : true ,
-            author : {
-                select : {
-                    name : true
-                }
-            } 
-        }
-    }) ;
-     
+        select: {
+            content: true,
+            title: true,
+            id: true,
+            createdAt: true,
+            authorId: true,
+            author: {
+                select: {
+                    name: true,
+                },
+            },
+        },
+        orderBy: {
+            createdAt: 'desc',
+        },
+    })
+
     return c.json({
-        blogs
+        blogs,
     })
 })
 
+// Get posts by current user
+blogRouter.get("/my-posts", async (c) => {
+    const prisma = new PrismaClient({
+        datasourceUrl: c.env.DATABASE_URL,
+    }).$extends(withAccelerate())
+
+    const authorId = c.get("userId")
+
+    const blogs = await prisma.post.findMany({
+        where: {
+            authorId: authorId,
+        },
+        select: {
+            content: true,
+            title: true,
+            id: true,
+            createdAt: true,
+            authorId: true,
+            author: {
+                select: {
+                    name: true,
+                },
+            },
+        },
+        orderBy: {
+            createdAt: 'desc',
+        },
+    })
+
+    return c.json({
+        blogs,
+    })
+})
 
 blogRouter.get("/:id", async (c) => {
-    const id = c.req.param("id") ;
+    const id = c.req.param("id")
     const prisma = new PrismaClient({
         datasourceUrl: c.env.DATABASE_URL,
     }).$extends(withAccelerate())
 
     try {
         const blog = await prisma.post.findFirst({
-            where : {
-                id
-            } , 
-            select :{
-                title : true ,
-                content : true ,
-                id : true ,
-                author : {
-                    select : {
-                        name : true 
-                    }
-                }
-            }
+            where: {
+                id,
+            },
+            select: {
+                title: true,
+                content: true,
+                id: true,
+                createdAt: true,
+                authorId: true,
+                author: {
+                    select: {
+                        name: true,
+                    },
+                },
+            },
         })
         return c.json({
-            blog
+            blog,
+        })
+    } catch (e) {
+        c.status(411)
+        return c.json({
+            message: "Error while fetching the blog post",
         })
     }
-    catch(e){
-        c.status(411) ;
+})
+
+// Delete a blog post (only by the author)
+blogRouter.delete("/:id", async (c) => {
+    const id = c.req.param("id")
+    const prisma = new PrismaClient({
+        datasourceUrl: c.env.DATABASE_URL,
+    }).$extends(withAccelerate())
+
+    const authorId = c.get("userId")
+
+    const result = await prisma.post.deleteMany({
+        where: {
+            id,
+            authorId,
+        },
+    })
+
+    if (result.count === 0) {
+        c.status(403)
         return c.json({
-            message : "Error while fetching the blog post"
+            message: "Not authorized to delete this post or post not found",
         })
-    }   
+    }
+
+    return c.json({
+        id,
+        message: "Post deleted successfully",
+    })
 })

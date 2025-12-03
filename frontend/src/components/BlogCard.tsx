@@ -11,24 +11,22 @@ interface BlogCardProps {
 export const BlogCard = ({authorName , title , content , publishedDate , id} : BlogCardProps) => {
   return (
     <Link to ={`/blog/${id}`}>
-        <div className="p-4 border-b border-slate-200 pb-4 w-screen max-w-screen-md cursor-pointer">
-            <div className="flex">
-                <div>
-                    <Avatar name={authorName} />
-                </div>
-                <div className="font-extralight pl-2 text-sm flex justify-center flex-col"> {authorName} </div>
-                <div className="flex flex-col justify-center pl-2 "> <Circle />  </div>
-                <div className="pl-2 font-thin text-slate-500 text-sm flex justify-center flex-col"> {publishedDate} </div>
+        <div className="p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow mb-4 cursor-pointer border border-gray-100">
+            <div className="flex items-center gap-2 mb-3">
+                <Avatar name={authorName} />
+                <div className="font-medium text-sm text-gray-700"> {authorName} </div>
+                <Circle />
+                <div className="text-xs text-slate-500"> {publishedDate} </div>
             </div>
-            <div className="text-xl font-semibold pt-2">
+            <div className="text-2xl font-bold text-gray-900 mb-2 hover:text-blue-600 transition-colors">
                 {title}
             </div>
 
-            <div className="text-md font-thin">
-                {content.slice(0 , 100) + "..."}
+            <div className="text-gray-600 mb-4 leading-relaxed">
+                {content.slice(0 , 150) + (content.length > 150 ? "..." : "")}
             </div>
 
-            <div className="text-slate-500 text-sm font-thin pt-2">
+            <div className="text-slate-500 text-sm">
                 {`${Math.ceil(content.length / 100)} minute(s) read`}
             </div>
         </div>

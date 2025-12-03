@@ -3,6 +3,7 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import axios from "axios"
 import { BACKEND_URL } from "../config"
+import { clearUserIdCache } from "../utils/auth"
 
 export const Auth = ({ type }: { type: "signup" | "signin" }) => {
     const navigate = useNavigate() ;
@@ -17,6 +18,7 @@ export const Auth = ({ type }: { type: "signup" | "signin" }) => {
             const response = await axios.post(`${BACKEND_URL}/api/v1/user/${type==="signup" ? "signup" : "signin"}` , postInputs) ;
             const jwt = response.data.jwt;
             localStorage.setItem("token", jwt);
+            clearUserIdCache(); // Clear cache so new user ID is fetched
             navigate('/blogs') ;
         }
         catch(e){
@@ -27,18 +29,21 @@ export const Auth = ({ type }: { type: "signup" | "signin" }) => {
     }
 
     return (
-        <div className="h-screen flex justify-center flex-col ">
+        <div className="h-screen flex justify-center flex-col bg-gray-50">
             <div className="flex justify-center">
-                <div className="px-10">
-                    <div>
-                        <div className="text-3xl font-extrabold">
-                            Create an Account
+                <div className="px-10 w-full max-w-md">
+                    <div className="mb-8">
+                        <Link to="/blogs" className="text-3xl font-bold text-gray-900 mb-2 block">
+                            Inkwell
+                        </Link>
+                        <div className="text-3xl font-extrabold text-gray-900 mb-2">
+                            {type === "signup" ? "Create an Account" : "Welcome Back"}
                         </div>
 
-                        <div className="text-slate-500">
+                        <div className="text-slate-600">
                             {type==="signin"? "Don't have an account?" : "Already have an account?"}
-                            <Link className="pl-2 underline" to={type==="signin" ? "/signup" :"/signin"}>
-                            {type==="signin"? "Sign up" : "Login"} 
+                            <Link className="pl-2 text-blue-600 hover:text-blue-700 font-medium" to={type==="signin" ? "/signup" :"/signin"}>
+                            {type==="signin"? "Sign up" : "Sign in"} 
                             </Link>
                         </div>
                     </div>
@@ -81,7 +86,7 @@ export const Auth = ({ type }: { type: "signup" | "signin" }) => {
                         <button
                             onClick={sendRequest}
                             type="button"
-                            className="text-white w-full mt-8 bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700"
+                            className="text-white w-full mt-8 bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 transition-colors"
                         >
                             {type==="signup" ? "Sign up" : "Sign in"}
                         </button>
@@ -114,7 +119,7 @@ function LabelledInput({
                 onChange={onChange}
                 type={type || "text"}
                 id="first_name"
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full p-3 transition-colors"
                 placeholder={placeholder}
                 required
             />

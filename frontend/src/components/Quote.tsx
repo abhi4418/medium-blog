@@ -1,18 +1,17 @@
 export const Quote = () =>{
-    return <div className=" bg-slate-200 h-screen flex justify-center flex-col ">
-        <div className="flex justify-center">
-            <div className=" max-w-lg">
-                <div className="text-2xl font-bold">
-                "The customer support i received was exceptional. The support team went above and
-                beyond to address my concerns"
+    return <div className="bg-gradient-to-br from-blue-600 to-purple-700 h-screen flex justify-center flex-col text-white">
+        <div className="flex justify-center px-8">
+            <div className="max-w-lg">
+                <div className="text-3xl font-bold leading-relaxed mb-6">
+                "Inkwell has transformed how I share my thoughts. The platform makes writing and publishing effortless, allowing me to focus on what matters most - my content."
                 </div>
 
-                <div className=" max-w-md text-xl font-semibold mt-4">
-                    Julies Winfield
+                <div className="text-xl font-semibold mt-4">
+                    Ankur Yadav
                 </div>
         
-                <div className=" max-w-md text-sm font-light text-slate-400">
-                    CEO | Acme corp
+                <div className="text-sm font-light text-blue-100 mt-1">
+                    Content Creator | Tech Writer
                 </div>
             </div>
         </div>
