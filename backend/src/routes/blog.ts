@@ -84,27 +84,27 @@ blogRouter.put("/", async (c) => {
 
     const authorId = c.get("userId")
 
-    const blog = await prisma.post.updateMany({
-        data: {
-            title: body.title,
-            content: body.content,
-        },
-        where: {
-            id: body.id,
-            authorId: authorId,
-        },
-    })
+    try {
+        const blog = await prisma.post.update({
+            data: {
+                title: body.title,
+                content: body.content,
+            },
+            where: {
+                id: body.id,
+                authorId: authorId,
+            },
+        })
 
-    if (blog.count === 0) {
+        return c.json({
+            id: blog.id,
+        })
+    } catch (e) {
         c.status(403)
         return c.json({
-            message: "Not authorized to update this post",
+            message: "Not authorized to update this post or post not found",
         })
     }
-
-    return c.json({
-        id: body.id,
-    })
 })
 
 //TODO - pagination

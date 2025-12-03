@@ -2,5 +2,5 @@ name = "backend"
 compatibility_date = "2023-12-01"
 
 [vars]
-DATABASE_URL= "prisma+postgres://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqd3RfaWQiOjEsInNlY3VyZV9rZXkiOiJza19QUF92YnlVTE5WMzU2SnY3czJPdjYiLCJhcGlfa2V5IjoiMDFLQkpKOUNCUFpCRTRZWjNNQVFBNkRRWkciLCJ0ZW5hbnRfaWQiOiI5NmViOGJjMmVlNmNkZTkxOTQ2ZTE1NDI5MDhiMTBlZTM3NjZmZjNlYzJhNGFiOGZmNWIxYmZkNzRiNWM1MDMxIiwiaW50ZXJuYWxfc2VjcmV0IjoiMTIwNDljNTYtYmUzMS00OWI4LTliNWYtMDI1NmZhYTI2NjMyIn0.dXCDe5zZEJRS-LIfHMDDbwEDCMTnFjGDip84iAhLj_Y"
-JWT_SECRET = "prod_abhishek_secret"
+DATABASE_URL= ""
+JWT_SECRET = ""
